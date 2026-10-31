@@ -3,7 +3,7 @@ services:
   api:
     build: .
     container_name: api
-    command: bash -c "cd /src/rest && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "cd /src/src/rest && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     links:
@@ -13,22 +13,24 @@ services:
       - ${ADBREW_CODEBASE_PATH}:/src
 
   app:
-    build: .
+    image: node:14
     container_name: app
-    command: bash -c "cd /src/app && yarn install && yarn start"
+    working_dir: /src/src/app
+    command: bash -c "corepack enable && yarn install && yarn start"
     ports:
       - "3000:3000"
+    environment:
+      - HOST=0.0.0.0
     volumes:
       - ${ADBREW_CODEBASE_PATH}:/src
 
   mongo:
-    build: .
+    image: mongo:4.4
     container_name: mongo
     restart: always
     ports:
       - "27017:27017"
     volumes:
       - ${ADBREW_CODEBASE_PATH}/db/:/data/db
-    command: /usr/bin/mongod --bind_ip 0.0.0.0
-
+    command: mongod --bind_ip 0.0.0.0
     
